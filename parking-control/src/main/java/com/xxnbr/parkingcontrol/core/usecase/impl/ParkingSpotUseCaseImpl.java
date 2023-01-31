@@ -2,9 +2,13 @@ package com.xxnbr.parkingcontrol.core.usecase.impl;
 
 import com.xxnbr.parkingcontrol.core.dataprovider.ParkingSpotDataProvider;
 import com.xxnbr.parkingcontrol.core.domain.ParkingSpot;
+import com.xxnbr.parkingcontrol.core.exceptions.DuplicateRecordException;
 import com.xxnbr.parkingcontrol.core.exceptions.InvalidUUIDException;
 import com.xxnbr.parkingcontrol.core.exceptions.RecordNotFoundException;
 import com.xxnbr.parkingcontrol.core.usecase.ParkingSpotUseCase;
+import org.springframework.dao.DataIntegrityViolationException;
+
+import java.util.UUID;
 
 public class ParkingSpotUseCaseImpl implements ParkingSpotUseCase {
 
@@ -15,18 +19,42 @@ public class ParkingSpotUseCaseImpl implements ParkingSpotUseCase {
     }
 
     @Override
-    public void insert(ParkingSpot parkingSpot) {
-        parkingSpotDataProvider.insert(parkingSpot);
+    public ParkingSpot insert(ParkingSpot parkingSpot) throws DuplicateRecordException {
+        try {
+
+            if(parkingSpotDataProvider.existsByLicensePlateCar(parkingSpot.getLicensePlateCar())) throw new DuplicateRecordException("Conflict: License Plate Car is already in use!");
+            if(parkingSpotDataProvider.existsByParkingSpotNumber(parkingSpot.getParkingSpotNumber())) throw new DuplicateRecordException("Conflict: Parking Spot is already in use!");
+            if(parkingSpotDataProvider.existsByApartamentAndBlock(parkingSpot.getApartament(), parkingSpot.getBlock())) throw new DuplicateRecordException("Conflict: Apartament and block is already in use!");
+
+            return parkingSpotDataProvider.insert(parkingSpot);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateRecordException(e.getMessage());
+        }
     }
 
     @Override
-    public void update(ParkingSpot parkingSpot) throws InvalidUUIDException {
-        parkingSpotDataProvider.findById(parkingSpot.getId().toString());
-        parkingSpotDataProvider.update(parkingSpot);
+    public ParkingSpot update(ParkingSpot parkingSpot) throws DuplicateRecordException, RecordNotFoundException, InvalidUUIDException {
+        try {
+            this.findById(parkingSpot.getId().toString());
+            if(parkingSpotDataProvider.existsByLicensePlateCar(parkingSpot.getLicensePlateCar())) throw new DuplicateRecordException("Conflict: License Plate Car is already in use!");
+            if(parkingSpotDataProvider.existsByParkingSpotNumber(parkingSpot.getParkingSpotNumber())) throw new DuplicateRecordException("Conflict: Parking Spot is already in use!");
+            if(parkingSpotDataProvider.existsByApartamentAndBlock(parkingSpot.getApartament(), parkingSpot.getBlock())) throw new DuplicateRecordException("Conflict: Apartament and block is already in use!");
+
+            return parkingSpotDataProvider.update(parkingSpot);
+        } catch (DataIntegrityViolationException e) {
+            throw new DuplicateRecordException(e.getMessage());
+        } catch (RecordNotFoundException | InvalidUUIDException e) {
+            throw e;
+        }
     }
 
     @Override
     public ParkingSpot findById(String uuid) throws RecordNotFoundException, InvalidUUIDException {
-        return parkingSpotDataProvider.findById(uuid).orElseThrow(() -> new RecordNotFoundException("The parking spot was not found"));
+        try {
+            UUID convertUUID = UUID.fromString(uuid);
+            return parkingSpotDataProvider.findById(convertUUID).orElseThrow(() -> new RecordNotFoundException("The parking spot was not found"));
+        } catch (IllegalArgumentException e) {
+            throw new InvalidUUIDException("Invalid UUID string: " + e.getMessage());
+        }
     }
 }

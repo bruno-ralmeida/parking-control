@@ -1,14 +1,15 @@
 package com.xxnbr.parkingcontrol.core.usecase;
 
 import com.xxnbr.parkingcontrol.core.domain.ParkingSpot;
+import com.xxnbr.parkingcontrol.core.exceptions.DuplicateRecordException;
 import com.xxnbr.parkingcontrol.core.exceptions.InvalidUUIDException;
 import com.xxnbr.parkingcontrol.core.exceptions.RecordNotFoundException;
 
 public interface ParkingSpotUseCase {
 
-    void insert(final ParkingSpot parkingSpot);
+    ParkingSpot insert(final ParkingSpot parkingSpot) throws DuplicateRecordException;
 
-    void update(final ParkingSpot parkingSpot) throws InvalidUUIDException;
+    ParkingSpot update(final ParkingSpot parkingSpot) throws InvalidUUIDException, DuplicateRecordException, RecordNotFoundException;
 
     ParkingSpot findById(final String uuid) throws RecordNotFoundException, InvalidUUIDException;
 }

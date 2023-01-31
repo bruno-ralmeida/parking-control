@@ -1,16 +1,21 @@
 package com.xxnbr.parkingcontrol.core.dataprovider;
 
 import com.xxnbr.parkingcontrol.core.domain.ParkingSpot;
-import com.xxnbr.parkingcontrol.core.exceptions.InvalidUUIDException;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public interface ParkingSpotDataProvider {
 
-    void insert(final ParkingSpot parkingSpot);
+    ParkingSpot insert(final ParkingSpot parkingSpot);
 
-    void update(final ParkingSpot parkingSpot);
+    ParkingSpot update(final ParkingSpot parkingSpot);
 
-    Optional<ParkingSpot> findById(final String uuid) throws InvalidUUIDException;
+    Optional<ParkingSpot> findById(final UUID uuid);
 
+    boolean existsByApartamentAndBlock(final String apartament, final String block);
+
+    boolean existsByParkingSpotNumber(final String parkingSpotNumber);
+
+    boolean existsByLicensePlateCar(final String licensePlateCar);
 }
