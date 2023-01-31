@@ -4,6 +4,7 @@ package com.xxnbr.parkingcontrol.mapper;
 import com.xxnbr.parkingcontrol.core.domain.ParkingSpot;
 import com.xxnbr.parkingcontrol.dataprovider.repository.entity.ParkingSpotEntity;
 import com.xxnbr.parkingcontrol.entrypoint.rest.request.ParkingSpotRequest;
+import com.xxnbr.parkingcontrol.entrypoint.rest.response.ParkingSpotResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,4 +17,6 @@ public interface ParkingSpotMapper {
 
     @Mapping(target = "id", ignore = true)
     ParkingSpot parkingSpotRequestToParkingSpot(ParkingSpotRequest request);
+
+    ParkingSpotResponse parkingSpotToParkingSpotResponse(ParkingSpot parkingSpot);
 }
